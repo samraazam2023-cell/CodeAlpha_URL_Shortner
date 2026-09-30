@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #777;
+            margin-bottom: 30px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        input:focus {
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: #667eea;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #5568d9;
+        }
+
+        #result {
+            margin-top: 25px;
+            display: none;
+        }
+
+        #shortUrl {
+            color: #667eea;
+            font-weight: bold;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            margin-top: 12px;
+            background: #28a745;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        #error {
+            color: #dc3545;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🔗 URL Shortener</h1>
+
+        <p class="subtitle">
+            Turn long URLs into short, shareable links.
+        </p>
+
+        <input
+            type="text"
+            id="urlInput"
+            placeholder="Enter your long URL here..."
+        >
+
+        <button onclick="shortenURL()">
+            Shorten URL
+        </button>
+
+        <p id="error"></p>
+
+        <div id="result">
+            <p>Your shortened URL:</p>
+
+            <p id="shortUrl"></p>
+
+            <button class="copy-btn" onclick="copyURL()">
+                📋 Copy URL
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        async function shortenURL() {
+
+            const url = document.getElementById("urlInput").value;
+            const result = document.getElementById("result");
+            const shortUrl = document.getElementById("shortUrl");
+            const error = document.getElementById("error");
+
+            result.style.display = "none";
+            error.style.display = "none";
+
+            if (!url) {
+                error.textContent = "Please enter a URL.";
+                error.style.display = "block";
+                return;
+            }
+
+            try {
+
+                const response = await fetch("/shorten", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        url: url
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Something went wrong.");
+                }
+
+                shortUrl.textContent = data.short_url;
+                result.style.display = "block";
+
+            } catch (err) {
+
+                error.textContent = err.message;
+                error.style.display = "block";
+
+            }
+        }
+
+
+        function copyURL() {
+
+            const url = document.getElementById("shortUrl").textContent;
+
+            navigator.clipboard.writeText(url);
+
+            alert("Short URL copied!");
+        }
+    </script>
+
+</body>
+</html>
