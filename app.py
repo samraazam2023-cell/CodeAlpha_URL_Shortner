@@ -63,7 +63,9 @@ def shorten_url():
     connection.commit()
     connection.close()
 
-    short_url = f"http://127.0.0.1:5000/{short_code}"
+    
+    short_url = f"{request.host_url.rstrip('/')}/{short_code}"
+
 
     return jsonify({
         "original_url": original_url,
